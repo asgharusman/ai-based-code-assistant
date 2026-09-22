@@ -1,28 +1,25 @@
 import chromadb
 from sentence_transformers import SentenceTransformer
+from loader import load_chunks
 
-# Step 1: Load the embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")
-
-# Step 2: Create a ChromaDB client (this will save data to a local folder called "chroma_db")
 client = chromadb.PersistentClient(path="chroma_db")
 
-# Step 3: Create (or get) a collection — think of it like a table in a database
-collection = client.get_or_create_collection(name="test_collection")
+# wipe the old collection so the 2 hand-typed chunks (ids "0", "1") are removed
+try:
+    client.delete_collection("test_collection")
+except Exception:
+    pass
+collection = client.create_collection(name="test_collection")
 
-# Step 4: Our test chunks (pretend these came from loader.py)
-chunks = [
-    "print hello world",
-    "print second file"
-]
+chunks = load_chunks("test_data")
+texts = [text for _, text in chunks]
 
-# Step 5: Convert each chunk to an embedding and store it
-for i, chunk in enumerate(chunks):
-    embedding = model.encode(chunk).tolist()
-    collection.add(
-        ids=[str(i)],
-        embeddings=[embedding],
-        documents=[chunk]
-    )
+collection.add(
+    ids=[f"{name}::{i}" for i, (name, _) in enumerate(chunks)],
+    embeddings=model.encode(texts).tolist(),
+    documents=texts,
+    metadatas=[{"file": name} for name, _ in chunks],
+)
 
 print("Stored", len(chunks), "chunks in ChromaDB")
