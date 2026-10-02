@@ -1,12 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Code Assistant(Mini Chatbot for programming)</title>
-  </head>
-  <body>
-hi baby
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<title>Code Assistant</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 0 20px;
+  }
+  textarea {
+    width: 100%;
+    height: 80px;
+    font-size: 16px;
+  }
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  #answer {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f4f4f4;
+    border-radius: 6px;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+<h2>Offline Code Assistant</h2>
+<textarea id="question" placeholder="Ask a question about your code..."></textarea>
+<br>
+<button onclick="askQuestion()">Ask</button>
+
+<div id="answer"></div>
+
+<script>
+async function askQuestion() {
+  const question = document.getElementById("question").value;
+  const answerDiv = document.getElementById("answer");
+  answerDiv.textContent = "Thinking...";
+
+  const response = await fetch("http://127.0.0.1:8000/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question: question })
+  });
+
+  const data = await response.json();
+  answerDiv.textContent = data.answer;
+}
+</script>
+
+</body>
 </html>
