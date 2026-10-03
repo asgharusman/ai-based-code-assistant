@@ -40,7 +40,7 @@ def ask(query, n_results=1):
     chunks = retrieve(query, n_results=n_results)
     prompt = build_prompt(query, chunks)
     response = ollama.chat(
-        model="gemma4:e2b",
+        model="qwen2.5:0.5b",
         messages=[{"role": "user", "content": prompt}]
     )
     return response["message"]["content"]
